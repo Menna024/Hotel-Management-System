@@ -47,6 +47,11 @@ string searchEmailDup(string em)
     return "";
 }
 
+void errorWrongNum()
+{
+    cout << "Wrong number entered. Please ty again." << endl;
+}
+
 
 int main()
 {              
@@ -203,7 +208,7 @@ int main()
               }
               else
               {
-                  cout << "Wrong number entered. Please ty again." << endl;
+                  errorWrongNum();
               }
 
               break;
@@ -239,7 +244,7 @@ int main()
 
                         default:
                         {
-                            cout << "Wrong number entered. Please ty again." << endl;
+                            errorWrongNum();
                             break;
                         }
                       }
@@ -247,14 +252,14 @@ int main()
               }
               else
               {
-                  cout << "Wrong number entered. Please ty again." << endl;
+                  errorWrongNum();
               }
               break;
           }
 
           default:
           {
-              cout << "Wrong number entered. Please ty again." << endl;
+              errorWrongNum();
               break;
           }
         }
