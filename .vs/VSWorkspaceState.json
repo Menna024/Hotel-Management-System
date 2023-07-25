@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\HotelManagementSystem",
+    "\\HotelManagementSystem\\HotelManagementSystem"
   ],
+  "SelectedNode": "\\HotelManagementSystem\\HotelManagementSystem\\HotelManagementSystem.cpp",
   "PreviewInSolutionExplorer": false
 }
