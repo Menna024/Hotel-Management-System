@@ -8,7 +8,7 @@ using namespace std;
 #define passLength 6
 const int maxPeopleCount = 10;
 people p[maxPeopleCount];
-
+int currentUser = 0;
 
 void validateEmail(string em,string& emError)
 {
@@ -33,7 +33,7 @@ void validatePassword(string pass, string& passErorr)
     }
 }
 
-string searchEmailDup(string em)
+string searchEmailDup(string em,int &indexFoundUser)
 {
     for (int i = 0; i < maxPeopleCount; i++)
     {
@@ -41,10 +41,31 @@ string searchEmailDup(string em)
 
         if (em == pEmail)
         {
+            indexFoundUser = i;
             return "This email already has an account on the system";
         }
     }
     return "";
+}
+
+string validateUser(string em, string pass)
+{
+    int index;
+    string emDup=searchEmailDup(em,index);
+
+    if (!emDup.empty())
+    {
+        string registeredPass = p[index].getPassword();
+
+        if (pass != registeredPass)
+        {
+            return "You entered a wrong password for this email.";
+        }
+        else
+            return "";
+    }
+    else
+        return "This email is not registered on the system.";
 }
 
 void errorWrongNum()
@@ -54,9 +75,7 @@ void errorWrongNum()
 
 
 int main()
-{              
-    int currentUser = 0;
-    
+{                 
     int userMenuNumber;
 
     string email, password;
@@ -69,13 +88,7 @@ int main()
     do {
         cout << "\nDo you want to : " << endl;
         cout << "1.Login" << endl;
-        if (isLogSucc)
-            cout << "\tUser already logged in"<<endl;
-
         cout << "2.Signup" << endl;
-        if (isSignSucc)
-            cout << "\tUser already siggned up" << endl;
-
         cout << "3.Rooms & Suites" << endl;
         cout << "4.Restaurants & Lounges" << endl;
         cout << "5.SPA & Gym" << endl;
@@ -92,99 +105,166 @@ int main()
         {
           case 1:  //LOGIN
           {
-              email = "";
-              password = "";
-              emError = "";
-              passError = "";
-
-              cout << "\nLog in" << endl;
-              cout << "Enter your email" << "    ";
-              cin >> email;
-              cout << "Enter your password" << "\t";
-              cin >> password;
-
-              validateEmail(email, emError);
-
-              if (emError.empty())
+              if (isLogSucc == false)
               {
-                  isLogSucc = true;
-                  cout << "\nLog in succeeded." << endl;
+                  email = "";
+                  password = "";
+                  emError = "";
+                  passError = "";
+
+                  cout << "\nLog in" << endl;
+                  cout << "Enter your email" << "    ";
+                  cin >> email;
+                  cout << "Enter your password" << "\t";
+                  cin >> password;
+
+                  validateEmail(email, emError);
+
+                  if (emError.empty())
+                  {
+                      string validation = validateUser(email, password);
+
+                      if (validation.empty())
+                      {
+                          isLogSucc = true;
+                          cout << "\nLog in succeeded." << endl;
+                      }
+                      else
+                      {
+                          isLogSucc = false;
+                          cout << validation << " Try again." << endl;
+                      }
+                  }
+                  else   //ERROR : Wrong Email Format
+                  {
+                      cout << emError << endl;
+                      isLogSucc = false;
+                      cout << "Log in Failed. Please try again." << endl;
+                  }
               }
-              else   //ERROR : Wrong Email Format
-              {
-                  cout << emError << endl;
-                  isLogSucc = false;
-                  cout << "\nLog in Failed. Please try again." << endl;
-              }
+              else
+                  cout << "\tUser already logged in" << endl;
               break;
           }
 
           case 2:  //SIGNUP
           {
-              string fName, lName;
-              email = "";
-              password = "";
-              emError = "";
-              passError = "";
-
-              cout << "Sign up" << endl;
-              cout << "Enter your email" << "    ";
-              cin >> email;
-
-              string emailDup = searchEmailDup(email);
-
-              validateEmail(email, emError);
-
-              if (emError.empty())
+              if (isLogSucc == false)
               {
-                  if (emailDup.empty())
+                  string fName, lName;
+                  email = "";
+                  password = "";
+                  emError = "";
+                  passError = "";
+
+                  cout << "Sign up" << endl;
+                  cout << "Enter your email" << "    ";
+                  cin >> email;
+
+                  string emailDup = searchEmailDup(email, currentUser);
+
+                  validateEmail(email, emError);
+
+                  if (emError.empty())
                   {
-                      p[currentUser].setEmail(email);
-                      cout << "Enter your password" << "\t";
-                      cin >> password;
+                      if (emailDup.empty())
+                      {                          
+                          cout << "Enter your password" << "\t";
+                          cin >> password;
 
-                      validatePassword(password, passError);
+                          validatePassword(password, passError);
 
-                      if (passError.empty())
-                      {
-                          p[currentUser].setPassword(password);
-                          isSignSucc = true;
+                          if (passError.empty())
+                          {
+                              p[currentUser].setEmail(email);
+                              p[currentUser].setPassword(password);
 
-                          cout << "Enter your first name" << "\t";
-                          cin >> fName;
-                          p[currentUser].setFirstName(fName);
+                              cout << "Enter your first name" << "\t";
+                              cin >> fName;
+                              p[currentUser].setFirstName(fName);
 
-                          cout << "Enter your last name" << "\t";
-                          cin >> lName;
-                          p[currentUser].setLastName(lName);
+                              cout << "Enter your last name" << "\t";
+                              cin >> lName;
+                              p[currentUser].setLastName(lName);
 
-                          cout << "\nSign up succeeded." << endl;
-                          cout << "\n Hello " + fName << endl;
+                              isSignSucc = true;
+                              isLogSucc = true;
+                              cout << "\nSign up succeeded." << endl;
+                              currentUser++;
+                              cout << "\n Hello " + fName << endl;
+                          }
+                          else //ERROR : Password is Weak
+                          {
+                              cout << passError << endl;
+                              isSignSucc = false;
+                              cout << "\nSign up failed." << endl;
+                          }
                       }
-                      else //ERROR : Password is Weak
+                      else  //ERROR : Entered Email Already has an account
                       {
-                          cout << passError << endl;
                           isSignSucc = false;
-                          cout << "\nSign up failed." << endl;
+                          cout << emailDup << endl;
                       }
                   }
-                  else  //ERROR : Entered Email Already has an account
+                  else   //ERROR : Wrong Email Format
                   {
                       isSignSucc = false;
-                      cout << emailDup << endl;
+                      cout << emError << endl;
                   }
               }
-              else   //ERROR : Wrong Email Format
-              {
-                  isSignSucc = false;
-                  cout << emError << endl;
-              }
+              else
+                  cout << "\tUser already siggned up" << endl;
               break;
           }
 
           case 3:  //Rooms & Suites
           {
+              int choice;
+              do {
+                  cout << "Do you want a room or a suite?" << endl;
+                  cout << "1.Room." << endl;
+                  cout << "2.Suite." << endl;
+                  cin >> choice;
 
+                  switch (choice)
+                  {
+                  case 1:
+                  {
+                      int size,view;
+                      string aDate, dDate;
+                      
+                      cout << "\nFill the required rooms specifications." << endl;
+                      cout << "What view should it be on?" << endl;
+                      cout << "1:Beach  2:Garden  3:Pool" << endl;
+                      cin >> view;
+
+                      cout << "What size should it be?" << endl;
+                      cout << "1:Single  2:Double  3:Triple" << endl;
+                      cin>>size;
+
+                      cout << "What is your arrival date?" << endl;
+                      cout << "Day-Month-Year" << endl;
+                      cin >> aDate;
+                      
+                      cout << "What is your departure date?" << endl;
+                      cout << "Day-Month-Year" << endl;
+                      cin >> dDate;
+
+
+                      break;
+                  }
+                  case 2:
+                  {
+
+                      break;
+                  }
+                  default:
+                  {
+                      errorWrongNum();
+                      break;
+                  }
+                  }
+              } while ((choice == 0) || (choice > 2));
               break;
           }
 
@@ -263,7 +343,7 @@ int main()
               break;
           }
         }
-    }while ((isLogSucc==false) || (isSignSucc==false));   
+    }while (true);   
 
 
 }

@@ -21,9 +21,123 @@
     <ClCompile Include="people.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="room.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="suite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="singleRB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="doubleRB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tripleRB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="user.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="admins.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="beachRoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="poolRoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="juniorSuite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="villaSuite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="deluxeSuite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gardenRoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="singleRP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="doubleRP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tripleRP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="singleRG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="doubleRG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tripleRG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="people.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="room.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="suite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="singleRB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="doubleRB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tripleRB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="user.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="admins.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="beachRoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="poolRoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="juniorSuite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="villaSuite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="deluxeSuite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gardenRoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="singleRP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="doubleRP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tripleRP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="singleRG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="doubleRG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tripleRG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
