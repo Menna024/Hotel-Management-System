@@ -3,5 +3,5 @@
 class admins :
     public people
 {
-};
+   };
 
