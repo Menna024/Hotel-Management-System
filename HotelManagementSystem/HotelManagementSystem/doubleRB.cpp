@@ -6,13 +6,13 @@ using namespace std;
 #include <string>
 #include "sqlite/sqlite3.h"
 
-void doubleRB::getRooms()
+
+void doubleRB::displayAvailableRooms()
 {
     const char* sql = "SELECT * FROM rooms WHERE reserved = 0 AND size = 2 AND view = 'sea';";
     sqlite3_stmt* stmt;
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-    if (rc != SQLITE_OK)
-    {
+    if (rc != SQLITE_OK)    {
         cout << "Can't prepare select double beach rooms statement" << endl;
     }
     else
@@ -28,3 +28,4 @@ void doubleRB::getRooms()
         cout << "room id: " << id << ", " << "building#: " << building << ", " << "floor#: " << floor << endl;
     }
 }
+

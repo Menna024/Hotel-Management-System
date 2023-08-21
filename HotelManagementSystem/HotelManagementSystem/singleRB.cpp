@@ -7,7 +7,7 @@ using namespace std;
 
 
 
-void singleRB::getRooms()
+void singleRB::displayAvailableRooms()
 {
     const char* sql = "SELECT * FROM rooms WHERE reserved = 0 AND size = 1 AND view = 'sea';";
     sqlite3_stmt* stmt;

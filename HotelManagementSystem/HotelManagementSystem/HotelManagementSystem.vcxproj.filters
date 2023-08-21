@@ -24,9 +24,6 @@
     <ClCompile Include="room.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="suite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="singleRB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,22 +36,10 @@
     <ClCompile Include="user.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="admins.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="beachRoom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="poolRoom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="juniorSuite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="villaSuite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="deluxeSuite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gardenRoom.cpp">
@@ -92,9 +77,6 @@
     <ClInclude Include="room.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="suite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="singleRB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -107,22 +89,10 @@
     <ClInclude Include="user.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="admins.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="beachRoom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="poolRoom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="juniorSuite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="villaSuite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="deluxeSuite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gardenRoom.h">

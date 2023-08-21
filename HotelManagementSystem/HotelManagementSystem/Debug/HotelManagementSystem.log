@@ -1,7 +1,4 @@
 ﻿  HotelManagementSystem.cpp
-  tripleRB.cpp
-  tripleRG.cpp
-  tripleRP.cpp
+  room.cpp
   Generating Code...
-  LINK : D:\HotelManagementSystem\Hotel-Management-System\HotelManagementSystem\Debug\HotelManagementSystem.exe not found or not built by the last incremental link; performing full link
   HotelManagementSystem.vcxproj -> D:\HotelManagementSystem\Hotel-Management-System\HotelManagementSystem\Debug\HotelManagementSystem.exe

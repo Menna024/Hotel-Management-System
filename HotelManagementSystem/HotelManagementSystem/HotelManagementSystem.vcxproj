@@ -142,16 +142,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="admins.cpp" />
     <ClCompile Include="beachRoom.cpp" />
     <ClCompile Include="dbManagement.cpp" />
-    <ClCompile Include="deluxeSuite.cpp" />
     <ClCompile Include="doubleRB.cpp" />
     <ClCompile Include="doubleRG.cpp" />
     <ClCompile Include="doubleRP.cpp" />
     <ClCompile Include="gardenRoom.cpp" />
     <ClCompile Include="HotelManagementSystem.cpp" />
-    <ClCompile Include="juniorSuite.cpp" />
     <ClCompile Include="people.cpp" />
     <ClCompile Include="poolRoom.cpp" />
     <ClCompile Include="room.cpp" />
@@ -159,23 +156,18 @@
     <ClCompile Include="singleRG.cpp" />
     <ClCompile Include="singleRP.cpp" />
     <ClCompile Include="sqlite\sqlite3.c" />
-    <ClCompile Include="suite.cpp" />
     <ClCompile Include="tripleRB.cpp" />
     <ClCompile Include="tripleRG.cpp" />
     <ClCompile Include="tripleRP.cpp" />
     <ClCompile Include="user.cpp" />
-    <ClCompile Include="villaSuite.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="admins.h" />
     <ClInclude Include="beachRoom.h" />
     <ClInclude Include="dbManagement.h" />
-    <ClInclude Include="deluxeSuite.h" />
     <ClInclude Include="doubleRB.h" />
     <ClInclude Include="doubleRG.h" />
     <ClInclude Include="doubleRP.h" />
     <ClInclude Include="gardenRoom.h" />
-    <ClInclude Include="juniorSuite.h" />
     <ClInclude Include="people.h" />
     <ClInclude Include="poolRoom.h" />
     <ClInclude Include="room.h" />
@@ -183,12 +175,10 @@
     <ClInclude Include="singleRG.h" />
     <ClInclude Include="singleRP.h" />
     <ClInclude Include="sqlite\sqlite3.h" />
-    <ClInclude Include="suite.h" />
     <ClInclude Include="tripleRB.h" />
     <ClInclude Include="tripleRG.h" />
     <ClInclude Include="tripleRP.h" />
     <ClInclude Include="user.h" />
-    <ClInclude Include="villaSuite.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

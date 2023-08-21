@@ -16,6 +16,8 @@ public:
 	void validateTableCreation(int rc);
     void createTable();
 	void createDB();
+	bool validateUser(string em, string pass);
+	bool detectDuplicateEmail(string em, string pass);
 	dbManagement();
 };
 

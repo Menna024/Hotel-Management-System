@@ -5,7 +5,8 @@ using namespace std;
 #include <iostream>
 #include <string>
 #include "sqlite/sqlite3.h"
-void doubleRP::getRooms()
+
+void doubleRP::displayAvailableRooms()
 {
     const char* sql = "SELECT * FROM rooms WHERE reserved = 0 AND size = 2 AND view = 'pool';";
     sqlite3_stmt* stmt;

@@ -4,7 +4,7 @@
 #include <string>
 #include "sqlite/sqlite3.h"
 
-void tripleRG::getRooms()
+void tripleRG::displayAvailableRooms()
 {
     const char* sql = "SELECT * FROM rooms WHERE reserved = 0 AND size = 3 AND view = 'garden';";
     sqlite3_stmt* stmt;

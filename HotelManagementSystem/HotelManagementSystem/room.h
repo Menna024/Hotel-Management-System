@@ -1,7 +1,18 @@
 #pragma once
+
+#include <iostream>
+#include <string>
+#include "sqlite/sqlite3.h"
+
+
 class room
 {
   public:
+	sqlite3* db;
+	char* zErrMsg = 0;
+	int rc = sqlite3_open("hotel.db", &db);
+
+
 	int id;
 	int floor;
 	int building;
@@ -12,18 +23,20 @@ class room
 	int userId;
 
 	//Arrival Date
-	int bookedDayFrom;
-	int bookedMonthFrom; 
-	int bookedYearFrom;
+	int dayFrom;
+	int monthFrom;
+	int yearFrom;
 
 	//Departure Date
-	int bookedDayTill;
-	int bookedMonthTill;
-	int bookedYearTill;
+	int dayTill;
+	int monthTill;
+	int yearTill;
 
-	bool reserveRoom(int id);
-	bool setArrivalDate(int bookedDay, int bookedMonth, int bookedYear);
-	bool setDepartureDate(int bookedDay, int bookedMonth, int bookedYear);
+	bool setArrivalDate(int day,int month,int year);
+	bool setDepartureDate(int day, int month, int year);
+
+    virtual void displayAvailableRooms() = 0;
+	virtual bool reserveRoom(int roomId, int userId, int day, int month, int year, int day2, int month2, int year2);
 
 	bool clearRoom();
 };

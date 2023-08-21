@@ -2,10 +2,11 @@ using namespace std;
 
 #include <iostream>
 #include <string>
+#include<stack>
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
-#include "people.h"
+#include "user.h"
 
 #include "singleRB.h"
 #include "doubleRB.h"
@@ -31,7 +32,6 @@ tripleRB tripleRBeach;
 tripleRG tripleRGarden;
 tripleRP tripleRPool;
 
-
 #define endEmail ".com"
 #define passLength 6
 
@@ -42,6 +42,10 @@ int rc = sqlite3_open("hotel.db", &db);
 int currentUserId;
 int searchedRooms;
 int searchedSuites;
+
+struct date {
+    int day, month, year;
+}arrivateDate,departureDate;
 
 void validateEmailFormat(string em,string& emError)
 {
@@ -66,71 +70,59 @@ void validatePasswordFormat(string pass, string& passErorr)
     }
 }
 
-bool validateUser(string em, string pass)
-{
-    const char* sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-    sqlite3_stmt* stmt;
-    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-    if (rc != SQLITE_OK)
-    {
-        cout << "Can't prepare select users statement" << endl;
-    }
-    else
-        cout << "Done prepare select users statement" << endl;
-
-    rc = sqlite3_bind_text(stmt, 1, em.c_str(),-1,SQLITE_STATIC);
-    if (rc != SQLITE_OK)
-    {
-        cout << "Can't bind email" << endl;
-    }
-    else
-        cout << "Done bind email" << endl;
-
-    rc = sqlite3_bind_text(stmt, 2, pass.c_str(),-1,SQLITE_STATIC);
-    if(rc!= SQLITE_OK)
-    {
-        cout << "Can't bind pass" << endl;
-    }
-    else
-        cout << "Done bind pass" << endl;
-
-    bool isUserFound = false;
-
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
-    {
-        int currentUserId = sqlite3_column_int(stmt, 0);
-        const char* coll1Val = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
-        const char* coll2Val = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-
-        isUserFound = true;
-        cout << currentUserId<<", " << coll1Val << ", " << coll2Val << endl;
-    }
-
-    return isUserFound;
-}
-
 void errorWrongNum()
 {
     cout << "Wrong number entered. Please ty again." << endl;
 }
 
+void getDates()
+{
+    cout << "Specify Arrival Day: ";
+    cin >> arrivateDate.day;
+    cout << "Specify Arrival Month: ";
+    cin >> arrivateDate.month;
+    cout << "Specify Arrival Year: ";
+    cin >> arrivateDate.year;
+
+    cout << "Specify Departure Day: ";
+    cin >> departureDate.day;
+    cout << "Specify Departure Month: ";
+    cin >> departureDate.month;
+    cout << "Specify Departure Year: ";
+    cin >> departureDate.year;
+}
+
+void reserveRoom(room &r)
+{
+    int roomId;
+    r.displayAvailableRooms();
+    cout << "select the room by typing the id associated: ";
+    cin >> roomId;
+    getDates();
+    bool roomReserved = r.reserveRoom(roomId, currentUserId, arrivateDate.day, arrivateDate.month, arrivateDate.year, departureDate.day, departureDate.month, departureDate.year);
+    if (roomReserved)
+        cout << "Room is reserved successfully " << endl;
+    else
+        cout << "Reservation Failed. " << endl;
+}
+
 void getAvailableRooms(int size, int view)
 {
     switch (view)
-    {
+    { 
       case 1:  //beach
       {
           if (size == 1)
           {
-              singleRBeach.getRooms();
+              reserveRoom(singleRBeach);
           }
           else if (size == 2)
           {
-              doubleRBeach.getRooms();
+              reserveRoom(doubleRBeach);
           }
           else if (size == 3)
           {
-              tripleRBeach.getRooms();
+              reserveRoom(tripleRBeach);
           }
           break;
       }
@@ -139,15 +131,15 @@ void getAvailableRooms(int size, int view)
       {
           if (size == 1)
           {
-              singleRGarden.getRooms();
+             reserveRoom(singleRGarden);
           }
           else if (size == 2)
           {
-              doubleRGarden.getRooms();
+              reserveRoom(doubleRGarden);
           }
           else if (size == 3)
           {
-              tripleRGarden.getRooms();
+              reserveRoom(tripleRGarden);
           }
           break;
       }
@@ -156,15 +148,15 @@ void getAvailableRooms(int size, int view)
       {
           if (size == 1)
           {
-              singleRPool.getRooms();
+              reserveRoom(singleRPool);
           }
           else if (size == 2)
           {
-              doubleRPool.getRooms();
+              reserveRoom(doubleRPool);
           }
           else if (size == 3)
           {
-              tripleRPool.getRooms();
+              reserveRoom(tripleRPool);
           }
           break;
       }
@@ -174,9 +166,9 @@ void getAvailableRooms(int size, int view)
 int main()
 {
     dbManagement dbManage;
-
+    
     int userMainMenuNumber;
-
+    user currentUser;
     string email, password;
     string emError = "", passError = "";
     bool isLogSucc = false, isSignSucc = false, loggedOut = false;
@@ -188,7 +180,7 @@ int main()
         cout << "\nDo you want to : " << endl;
         cout << "1.Login" << endl;
         cout << "2.Signup" << endl;
-        cout << "3.Rooms & Suites" << endl;
+        cout << "3.Rooms" << endl;
         cout << "4.Restaurants & Lounges" << endl;
         cout << "5.SPA & Gym" << endl;
 
@@ -221,12 +213,13 @@ int main()
 
                 if (emError.empty())
                 {
-                    bool isFound = validateUser(email, password);
+                    bool isFound = dbManage.validateUser(email, password);
 
                     if (isFound)
                     {
                         isLogSucc = true;
-                        cout << "\nLog in succeeded." << endl;
+                        currentUser.getUserId(email,password);  //set currentUserId in currentUser object of user class
+                        cout <<"\nLog in succeeded." << endl;
                     }
                     else
                     {
@@ -269,58 +262,69 @@ int main()
                         cin >> password;
 
                         validatePasswordFormat(password, passError);
+                        
 
                         if (passError.empty())
                         {
-                            cout << "Enter your first name" << "\t";
-                            cin >> fName;
-                            
-                            cout << "Enter your second name" << "\t";
-                            cin >> sName;
-                            
-                            cout << "Enter your age" << "\t";
-                            int age;
-                            cin >> age;
-                            isSignSucc = true;
-                            isLogSucc = true;
+                            bool isADuplicateUser = dbManage.detectDuplicateEmail(email, password);
 
-                            const char* sql = "INSERT INTO users (email,password,firstName,secondName,age,visits) VALUES (?,?,?,?,?,0);";
-
-                            sqlite3_stmt* stmt;
-                            rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-                            if (rc != SQLITE_OK)
+                            if (!isADuplicateUser)
                             {
-                                cout << "Can't prepare statement, " << sqlite3_errmsg(db) <<", " << sqlite3_errcode(db) << endl;
+                                cout << "Enter your first name" << "\t";
+                                cin >> fName;
+
+                                cout << "Enter your second name" << "\t";
+                                cin >> sName;
+
+                                cout << "Enter your age" << "\t";
+                                int age;
+                                cin >> age;
+                                isSignSucc = true;
+                                isLogSucc = true;
+
+                                const char* sql = "INSERT INTO users (email,password,firstName,secondName,age,visits) VALUES (?,?,?,?,?,0);";
+
+                                sqlite3_stmt* stmt;
+                                rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+                                if (rc != SQLITE_OK)
+                                {
+                                    cout << "Can't prepare statement, " << sqlite3_errmsg(db) << ", " << sqlite3_errcode(db) << endl;
+                                }
+                                else
+                                    cout << "DONE prepare statement" << endl;
+
+
+                                const char* userEm = email.c_str();
+                                const char* userPass = password.c_str();
+                                const char* userFName = fName.c_str();
+                                const char* userSName = sName.c_str();
+
+                                sqlite3_bind_text(stmt, 1, userEm, -1, SQLITE_STATIC);
+                                sqlite3_bind_text(stmt, 2, userPass, -1, SQLITE_STATIC);
+                                sqlite3_bind_text(stmt, 3, userFName, -1, SQLITE_STATIC);
+                                sqlite3_bind_text(stmt, 4, userSName, -1, SQLITE_STATIC);
+                                sqlite3_bind_int(stmt, 5, age);
+
+
+                                rc = sqlite3_step(stmt);
+                                if (rc != SQLITE_DONE)
+                                {
+                                    cout << "Can't execute statement " << sqlite3_errmsg(db) << endl;
+                                }
+                                else
+                                    cout << "DONE execute statement" << endl;
+
+
+
+                                currentUser.getUserId(email, password);
+
+                               
+                                cout << "\n Hello " + currentUser.currentUserId + fName << endl;
                             }
                             else
-                                cout << "DONE prepare statement" << endl;
-
-
-                            const char* userEm = email.c_str();
-                            const char* userPass = password.c_str();
-                            const char* userFName = fName.c_str();
-                            const char* userSName = sName.c_str();
-
-                            sqlite3_bind_text(stmt, 1, userEm, -1, SQLITE_STATIC);
-                            sqlite3_bind_text(stmt, 2, userPass, -1, SQLITE_STATIC);
-                            sqlite3_bind_text(stmt, 3, userFName, -1, SQLITE_STATIC);
-                            sqlite3_bind_text(stmt, 4, userSName, -1, SQLITE_STATIC);
-                            sqlite3_bind_int(stmt, 5, age);
-                          
-
-                            rc = sqlite3_step(stmt);
-                            if (rc != SQLITE_DONE)
                             {
-                                cout << "Can't execute statement " << sqlite3_errmsg(db) << endl;
+                                cout << "Duplicate user " << endl;
                             }
-                            else
-                                cout << "DONE execute statement" << endl;
-
-                           
-                            bool x=validateUser(email,password);
-
-                            if(x)
-                             cout << "\n Hello " +currentUserId+ fName << endl;
                         }
                         else //ERROR : Password is Weak
                         {
@@ -340,65 +344,25 @@ int main()
             break;
         }
 
-        case 3:  //Rooms & Suites
+        case 3:  //Rooms
         {
-            int choice;
-            do {
-                cout << "Do you want a room or a suite?" << endl;
-                cout << "1.Room." << endl;
-                cout << "2.Suite." << endl;
-                cin >> choice;
+             cout << "Rooms" << endl;
 
-                switch (choice)
-                {
-                case 1:
-                {
-                    int size, view;
-                    int aDay, dDay, aMonth, dMonth, aYear, dYear;
+             int size, view;
+             string aDate,dDate;
 
-                    cout << "What size should it be?" << endl;
-                    cout << "1:Single  2:Double  3:Triple" << endl;
-                    cin >> size;
+             cout << "What size should it be?" << endl;
+             cout << "1:Single  2:Double  3:Triple" << endl;
+             cin >> size;
 
-                    cout << "\nFill the required rooms specifications." << endl;
-                    cout << "What view should it be on?" << endl;
-                    cout << "1:Beach  2:Garden  3:Pool" << endl;
-                    cin >> view;
+             cout << "\nFill the required rooms specifications." << endl;
+             cout << "What view should it be on?" << endl;
+             cout << "1:Beach  2:Garden  3:Pool" << endl;
+             cin >> view;
 
-                    getAvailableRooms(size, view);
-
-                    cout << "Specify Arrival Date:" << endl;
-                    cout << "Day:" << endl;
-                    cin >> aDay;
-                    cout << "Month:" << endl;
-                    cin >> aMonth;
-                    cout << "Year:" << endl;
-                    cin >> aYear;
-
-                    cout << "Specify Departure Date:" << endl;
-                    cout << "Day:" << endl;
-                    cin >> dDay;
-                    cout << "Month:" << endl;
-                    cin >> dMonth;
-                    cout << "Year:" << endl;
-                    cin >> dYear;
-
-
-                    break;
-                }
-                case 2:
-                {
-
-                    break;
-                }
-                default:
-                {
-                    errorWrongNum();
-                    break;
-                }
-                }
-            } while ((choice == 0) || (choice > 2));
-            break;
+             getAvailableRooms(size, view);
+              
+             break;      
         }
 
         case 4:  //Restaurants & Lounges
@@ -446,6 +410,7 @@ int main()
                     {
                         isLogSucc = false;
                         isSignSucc = false;
+                        currentUser.currentUserId = -1;
                         cout << "Log out succeeded. Please visit us soon." << endl;
                         break;
                     }
