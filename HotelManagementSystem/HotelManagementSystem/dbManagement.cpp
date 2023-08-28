@@ -5,6 +5,16 @@ using namespace std;
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
+void dbManagement::openDB()
+{
+    rc = sqlite3_open("hotel.db", &db);
+}
+
+void  dbManagement::closeDB()
+{
+    sqlite3_close(db);
+}
+
 int dbManagement::callback(void* NotUsed, int argc, char** argv, char** azColName) {
     int i;
     for (i = 0; i < argc; i++) {
@@ -16,13 +26,14 @@ int dbManagement::callback(void* NotUsed, int argc, char** argv, char** azColNam
 
 void dbManagement::validateTableCreation(int rc)
 {
-    if (rc != SQLITE_OK) {
+  /* if (rc != SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", zErrMsg);
         sqlite3_free(zErrMsg);
     }
     else {
         fprintf(stdout, "Table created successfully\n");
     }
+    */
 }
 
 void dbManagement::createTable()
@@ -30,14 +41,14 @@ void dbManagement::createTable()
     rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS users(userId INTEGER PRIMARY KEY AUTOINCREMENT,"
         "email TEXT NOT NULL, password TEXT NOT NULL,"
         "firstName TEXT NOT NULL,secondName TEXT NOT NULL, "
-        "age INT NOT NULL, reservationId INT, visits INT NOT NULL,"
+        "age INTEGER NOT NULL, reservationId INTEGER, visits INTEGER NOT NULL,"
         "ArrivalDate TEXT, DepartureDate TEXT); ", callback, 0, &zErrMsg);
     validateTableCreation(rc);
 
     rc = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS rooms(roomId INTEGER PRIMARY KEY,"
-        "building INT NOT NULL, floor INT NOT NULL,"
-        "view TEXT NOT NULL,size INT NOT NULL,"
-        "reserved INT NOT NULL,userId INTEGER,  StartDay INT ,StartMonth INT ,StartYear INT ,EndDay INT ,EndMonth INT ,EndYear INT);", callback, 0, &zErrMsg);
+        "building INTEGER NOT NULL, floor INTEGER NOT NULL,"
+        "view TEXT NOT NULL,size INTEGER NOT NULL,"
+        "reserved INTEGER NOT NULL,userId INTEGER,  StartDay INTEGER ,StartMonth INTEGER ,StartYear INTEGER ,EndDay INTEGER ,EndMonth INTEGER ,EndYear INTEGER, price NUMERIC);", callback, 0, &zErrMsg);
     validateTableCreation(rc);
 }
 
@@ -53,11 +64,14 @@ void dbManagement::createDB()
 
 dbManagement::dbManagement()
 {
+    openDB();
     createDB();
 }
 
 bool dbManagement::validateUser(string em, string pass)
 {
+    openDB();
+
     const char* sql = "SELECT * FROM users WHERE email = ? AND password = ?";
     sqlite3_stmt* stmt;
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
@@ -90,12 +104,15 @@ bool dbManagement::validateUser(string em, string pass)
     {
         isUserFound = true;
     }
-
+    sqlite3_finalize(stmt);
+    closeDB();
     return isUserFound;
+
 } //For login verification
 
 bool dbManagement::detectDuplicateEmail(string em,string pass)
 {
+    openDB();
     const char* sql = "SELECT * FROM users WHERE email = ?";
     sqlite3_stmt* stmt;
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
@@ -128,6 +145,8 @@ bool dbManagement::detectDuplicateEmail(string em,string pass)
     {
         isUserFound = true;
     }
+
+    sqlite3_finalize(stmt);
+    closeDB();
     return isUserFound;
 } //For signup verification, if user wants to make an account with already existing email
-

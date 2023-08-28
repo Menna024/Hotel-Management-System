@@ -11,6 +11,6 @@ class tripleRG :
 public:
     string size = "triple";
 
-    void displayAvailableRooms();
+     void displayAvailableRooms();
 };
 

@@ -35,11 +35,8 @@ tripleRP tripleRPool;
 #define endEmail ".com"
 #define passLength 6
 
-sqlite3* db;
-char* zErrMsg = 0;
-int rc = sqlite3_open("hotel.db", &db);
-
 int currentUserId;
+user currentUser;
 int searchedRooms;
 int searchedSuites;
 
@@ -99,7 +96,7 @@ void reserveRoom(room &r)
     cout << "select the room by typing the id associated: ";
     cin >> roomId;
     getDates();
-    bool roomReserved = r.reserveRoom(roomId, currentUserId, arrivateDate.day, arrivateDate.month, arrivateDate.year, departureDate.day, departureDate.month, departureDate.year);
+    bool roomReserved = r.reserveRoom(roomId, currentUser.currentUserId, arrivateDate.day, arrivateDate.month, arrivateDate.year, departureDate.day, departureDate.month, departureDate.year);
     if (roomReserved)
         cout << "Room is reserved successfully " << endl;
     else
@@ -166,9 +163,9 @@ void getAvailableRooms(int size, int view)
 int main()
 {
     dbManagement dbManage;
-    
+
     int userMainMenuNumber;
-    user currentUser;
+ 
     string email, password;
     string emError = "", passError = "";
     bool isLogSucc = false, isSignSucc = false, loggedOut = false;
@@ -218,7 +215,7 @@ int main()
                     if (isFound)
                     {
                         isLogSucc = true;
-                        currentUser.getUserId(email,password);  //set currentUserId in currentUser object of user class
+                        currentUser.getUserId(email,password);
                         cout <<"\nLog in succeeded." << endl;
                     }
                     else
@@ -253,7 +250,6 @@ int main()
                 cout << "Enter your email" << "    ";
                 cin >> email;
 
-
                 validateEmailFormat(email, emError);
 
                 if (emError.empty())
@@ -272,54 +268,25 @@ int main()
                             {
                                 cout << "Enter your first name" << "\t";
                                 cin >> fName;
+                                currentUser.setFirstName(fName);
 
                                 cout << "Enter your second name" << "\t";
                                 cin >> sName;
+                                currentUser.setLastName(sName);
 
                                 cout << "Enter your age" << "\t";
                                 int age;
                                 cin >> age;
+                                currentUser.setAge(age);
+                                
                                 isSignSucc = true;
                                 isLogSucc = true;
 
-                                const char* sql = "INSERT INTO users (email,password,firstName,secondName,age,visits) VALUES (?,?,?,?,?,0);";
-
-                                sqlite3_stmt* stmt;
-                                rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-                                if (rc != SQLITE_OK)
-                                {
-                                    cout << "Can't prepare statement, " << sqlite3_errmsg(db) << ", " << sqlite3_errcode(db) << endl;
-                                }
-                                else
-                                    cout << "DONE prepare statement" << endl;
-
-
-                                const char* userEm = email.c_str();
-                                const char* userPass = password.c_str();
-                                const char* userFName = fName.c_str();
-                                const char* userSName = sName.c_str();
-
-                                sqlite3_bind_text(stmt, 1, userEm, -1, SQLITE_STATIC);
-                                sqlite3_bind_text(stmt, 2, userPass, -1, SQLITE_STATIC);
-                                sqlite3_bind_text(stmt, 3, userFName, -1, SQLITE_STATIC);
-                                sqlite3_bind_text(stmt, 4, userSName, -1, SQLITE_STATIC);
-                                sqlite3_bind_int(stmt, 5, age);
-
-
-                                rc = sqlite3_step(stmt);
-                                if (rc != SQLITE_DONE)
-                                {
-                                    cout << "Can't execute statement " << sqlite3_errmsg(db) << endl;
-                                }
-                                else
-                                    cout << "DONE execute statement" << endl;
-
-
-
+                                currentUser.addUser(email, password, fName, sName, age);
+           
                                 currentUser.getUserId(email, password);
-
                                
-                                cout << "\n Hello " + currentUser.currentUserId + fName << endl;
+                               cout << "\n Hello " + currentUser.currentUserId + currentUser.getFirstName() << endl;
                             }
                             else
                             {
@@ -390,8 +357,6 @@ int main()
 
             break;
         }
-
-
         case 7:  //Log out
         {
             if (isSignSucc || isLogSucc)

@@ -6,39 +6,160 @@ using namespace std;
 
 bool room::reserveRoom(int roomId, int userId, int day, int month, int year, int day2, int month2, int year2)
 {
-    const char* sql = "UPDATE rooms SET reserved=1, userId=?, StartDay=? ,StartMonth=? ,StartYear=? ,EndDay=? ,EndMonth=? ,EndYear=?  WHERE roomId=? ;";
+    dbManage.openDB();
+
+    const char* sql = "UPDATE rooms SET reserved=1, userId=? WHERE roomId=? ;";
     sqlite3_stmt* stmt;
-    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
-    if (rc != SQLITE_OK)
+    dbManage.rc = sqlite3_prepare_v2(dbManage.db, sql, -1, &stmt, nullptr);
+
+    if (dbManage.rc != SQLITE_OK)
     {
-        cout << "Can't prepare statement, " << sqlite3_errmsg(db) << ", " << sqlite3_errcode(db) << endl;
+        cout << "Can't prepare statement, " << sqlite3_errmsg(dbManage.db) << ", " << sqlite3_errcode(dbManage.db) << endl;
     }
     else
         cout << "DONE prepare statement reservee" << endl;
 
 
     sqlite3_bind_int(stmt, 1, userId);
-    sqlite3_bind_int(stmt, 2, day);
-    sqlite3_bind_int(stmt, 3, month);
-    sqlite3_bind_int(stmt, 4, year);
-    sqlite3_bind_int(stmt, 5, day2);
-    sqlite3_bind_int(stmt, 6, month2);
-    sqlite3_bind_int(stmt, 7, year2);
+    sqlite3_bind_int(stmt, 2, roomId);
 
-    sqlite3_bind_int(stmt, 8, roomId);
+    dbManage.rc = sqlite3_step(stmt);
 
-    rc = sqlite3_step(stmt);
-
-    if (rc != SQLITE_DONE)
+    if (dbManage.rc != SQLITE_DONE)
     {
-        cout << "Can't execute statement " << sqlite3_errmsg(db) << endl;
+        cout << "Can't execute statement " << sqlite3_errmsg(dbManage.db) << endl;
+        sqlite3_finalize(stmt);
+        dbManage.closeDB();
         return false;
     }
     else
     {
         cout << "DONE execute statement" << endl;
+        bool isDateReserved=reserveRoomDate(roomId, day,  month,  year, day2,  month2, year2);
+        if (isDateReserved)
+        {
+            sqlite3_finalize(stmt);
+            dbManage.closeDB();
+
+            incrementUserVisits(userId);
+            return true;
+        }
+        else
+        {
+            sqlite3_finalize(stmt);
+            dbManage.closeDB();
+            return false;
+        }
+    }
+
+}
+
+bool room::reserveRoomDate(int roomId, int day, int month, int year, int day2, int month2, int year2)
+{
+    dbManage.openDB();
+
+    const char* sql = "UPDATE rooms SET StartDay=? ,StartMonth=? ,StartYear=? ,EndDay=? ,EndMonth=? ,EndYear=?  WHERE roomId=? ;";
+    sqlite3_stmt* stmt;
+    dbManage.rc = sqlite3_prepare_v2(dbManage.db, sql, -1, &stmt, nullptr);
+
+    if (dbManage.rc != SQLITE_OK)
+    {
+        cout << "Can't prepare statement, " << sqlite3_errmsg(dbManage.db) << ", " << sqlite3_errcode(dbManage.db) << endl;
+    }
+    else
+        cout << "DONE prepare statement reservee" << endl;
+
+    sqlite3_bind_int(stmt, 1, day);
+    sqlite3_bind_int(stmt, 2, month);
+    sqlite3_bind_int(stmt, 3, year);
+    sqlite3_bind_int(stmt, 4, day2);
+    sqlite3_bind_int(stmt, 5, month2);
+    sqlite3_bind_int(stmt, 6, year2);
+    sqlite3_bind_int(stmt, 7, roomId);
+
+    dbManage.rc = sqlite3_step(stmt);
+
+    if (dbManage.rc != SQLITE_DONE)
+    {
+        cout << "Can't execute statement " << sqlite3_errmsg(dbManage.db) << endl;
+        sqlite3_finalize(stmt);
+        dbManage.closeDB();
+        return false;
+    }
+    else
+    {
+        cout << "DONE execute statement" << endl;
+
+        sqlite3_finalize(stmt);
+        dbManage.closeDB();
         return true;
     }
+}
+
+int room::getUserVisits(int userID)
+{
+    dbManage.openDB();
+    const char* sql = "SELECT visits FROM users WHERE userId=?";
+    sqlite3_stmt* stmt;
+    dbManage.rc = sqlite3_prepare_v2(dbManage.db, sql, -1, &stmt, nullptr);
+    if (dbManage.rc != SQLITE_OK)
+    {
+        cout << "Can't prepare select visits statement" << endl;
+    }
+    else
+        cout << "Done prepare select visits statement" << endl;
+
+    sqlite3_bind_int(stmt, 1, userID);
+    int visits=-1;
+
+    if ((dbManage.rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        visits = sqlite3_column_int(stmt, 0);
+        cout << "USER visits is " << visits << endl;
+        sqlite3_finalize(stmt);
+    dbManage.closeDB();
+        return visits;
+    }
+    sqlite3_finalize(stmt);
+    dbManage.closeDB();
+    return -1;
+}
+
+void room::incrementUserVisits( int userID)
+{
+    int visits = getUserVisits(userID);
+    dbManage.openDB();
+    
+    visits += 1;
+
+    const char* sql = "UPDATE users SET visits=? WHERE userId=?";
+    sqlite3_stmt* stmt;
+    dbManage.rc = sqlite3_prepare_v2(dbManage.db, sql, -1, &stmt, nullptr);
+    if (dbManage.rc != SQLITE_OK)
+    {
+        cout << "Can't prepare update visits statement" << endl;
+    }
+    else
+        cout << "Done prepare update visits statement" << endl;
+
+    sqlite3_bind_int(stmt, 1, visits);
+    sqlite3_bind_int(stmt, 2, userID);
+
+    dbManage.rc = sqlite3_step(stmt);
+
+    if (dbManage.rc != SQLITE_DONE)
+    {
+        cout << "Can't execute statement " << sqlite3_errmsg(dbManage.db) << endl;
+    }
+    else
+    {
+        cout << "DONE execute statement" << endl;
+    }
+
+    sqlite3_finalize(stmt);
+    dbManage.closeDB();
+
+    getUserVisits(userID);
 }
 
 bool room::setArrivalDate(int day, int month, int year)
@@ -57,11 +178,36 @@ bool room::setDepartureDate(int day, int month, int year)
 	return true;
 }
 
-bool room::clearRoom()
+void room::clearRoom(int roomId)
 {
-	
+    dbManage.openDB();
+
+    const char* sql = "UPDATE rooms SET StartDay=0 ,StartMonth=0 ,StartYear=0 ,EndDay=0 ,EndMonth=0 ,EndYear=0,reserved=0  WHERE roomId=? ;";
+    sqlite3_stmt* stmt;
+    dbManage.rc = sqlite3_prepare_v2(dbManage.db, sql, -1, &stmt, nullptr);
+
+    if (dbManage.rc != SQLITE_OK)
+    {
+        cout << "Can't prepare statement, " << sqlite3_errmsg(dbManage.db) << ", " << sqlite3_errcode(dbManage.db) << endl;
+    }
+    else
+        cout << "DONE prepare statement reservee" << endl;
+
+    sqlite3_bind_int(stmt, 1, roomId);
+    dbManage.rc = sqlite3_step(stmt);
+
+    if (dbManage.rc != SQLITE_DONE)
+    {
+        cout << "Can't execute statement " << sqlite3_errmsg(dbManage.db) << endl;
+    }
+    else
+    {
+        cout << "DONE execute statement" << endl;
+
+    }
 
 	userId = -1;
 
-	return true;
+    sqlite3_finalize(stmt);
+    dbManage.closeDB();
 }

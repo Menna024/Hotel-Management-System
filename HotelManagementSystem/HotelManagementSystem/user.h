@@ -3,18 +3,15 @@
 using namespace std;
 #include <iostream>
 #include "sqlite/sqlite3.h"
+#include "dbManagement.h"
 
-class user :
-    public people
-{
+class user :public people{
 
 public:
     int currentUserId;
-
-    sqlite3* db;
-    char* zErrMsg = 0;
-    int rc = sqlite3_open("hotel.db", &db);
-
+    dbManagement dbManage;
+    
+    void addUser(string email, string password, string fName, string sName, int age);
     void getUserId(string email,string password);
 };
 

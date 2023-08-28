@@ -3,15 +3,11 @@
 #include <iostream>
 #include <string>
 #include "sqlite/sqlite3.h"
-
+#include "dbManagement.h"
 
 class room
 {
   public:
-	sqlite3* db;
-	char* zErrMsg = 0;
-	int rc = sqlite3_open("hotel.db", &db);
-
 
 	int id;
 	int floor;
@@ -21,7 +17,8 @@ class room
 
 	//Info about user that reserved the room
 	int userId;
-
+	dbManagement dbManage;
+	
 	//Arrival Date
 	int dayFrom;
 	int monthFrom;
@@ -32,12 +29,17 @@ class room
 	int monthTill;
 	int yearTill;
 
+
 	bool setArrivalDate(int day,int month,int year);
 	bool setDepartureDate(int day, int month, int year);
 
+	
     virtual void displayAvailableRooms() = 0;
-	virtual bool reserveRoom(int roomId, int userId, int day, int month, int year, int day2, int month2, int year2);
+	bool reserveRoom(int roomId, int userId, int day, int month, int year, int day2, int month2, int year2);
+	bool reserveRoomDate(int roomId, int day, int month, int year, int day2, int month2, int year2);
+	int getUserVisits(int userID);
+	void incrementUserVisits(int userID);
 
-	bool clearRoom();
+	void clearRoom(int roomId);
 };
 

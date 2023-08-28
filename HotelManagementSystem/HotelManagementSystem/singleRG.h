@@ -9,7 +9,7 @@ class singleRG :
     public gardenRoom
 {
        public:
-
+           string size = "single";
            void displayAvailableRooms();
 };
 
