@@ -11,5 +11,5 @@ class tripleRB :
 public:
     string size = "triple";
 
-    void displayAvailableRooms();
+    void displayAvailableRooms(vector<int>& roomsId);
 };

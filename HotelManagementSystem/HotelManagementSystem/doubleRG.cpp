@@ -5,7 +5,7 @@ using namespace std;
 #include <string>
 #include "sqlite/sqlite3.h"
 
-void doubleRG::displayAvailableRooms()
+void doubleRG::displayAvailableRooms(vector<int>& roomsId)
 {
     dbManage.openDB();
 
@@ -34,6 +34,7 @@ void doubleRG::displayAvailableRooms()
             int floor = sqlite3_column_int(stmt, 2);
 
             cout << "room id: " << id << ", " << "building#: " << building << ", " << "floor#: " << floor << endl;
+            roomsId.push_back(id);
         }
     }
     sqlite3_finalize(stmt);

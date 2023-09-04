@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
@@ -34,7 +35,7 @@ class room
 	bool setDepartureDate(int day, int month, int year);
 
 	
-    virtual void displayAvailableRooms() = 0;
+    virtual void displayAvailableRooms(vector<int> &roomsId) = 0;
 	bool reserveRoom(int roomId, int userId, int day, int month, int year, int day2, int month2, int year2);
 	bool reserveRoomDate(int roomId, int day, int month, int year, int day2, int month2, int year2);
 	int getUserVisits(int userID);

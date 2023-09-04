@@ -5,7 +5,7 @@ using namespace std;
 #include <string>
 #include "sqlite/sqlite3.h"
 
-void tripleRP::displayAvailableRooms()
+void tripleRP::displayAvailableRooms(vector<int>& roomsId)
 {
     dbManage.openDB();
     const char* sql = "SELECT * FROM rooms WHERE reserved !=1 AND size = 3 AND view = 'pool';";
@@ -33,6 +33,7 @@ void tripleRP::displayAvailableRooms()
             int floor = sqlite3_column_int(stmt, 2);
 
             cout << "room id: " << id << ", " << "building#: " << building << ", " << "floor#: " << floor << endl;
+            roomsId.push_back(id);
         }
     }
     sqlite3_finalize(stmt);

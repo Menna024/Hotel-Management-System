@@ -10,6 +10,6 @@ class singleRG :
 {
        public:
            string size = "single";
-           void displayAvailableRooms();
+           void displayAvailableRooms(vector<int>& roomsId);
 };
 

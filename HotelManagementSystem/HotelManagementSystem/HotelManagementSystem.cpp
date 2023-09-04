@@ -2,7 +2,9 @@ using namespace std;
 
 #include <iostream>
 #include <string>
-#include<stack>
+#include <ctime>
+
+
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
@@ -20,6 +22,10 @@ using namespace std;
 #include "doubleRP.h"
 #include "tripleRP.h"
 
+#include <stack>
+
+#pragma warning(disable : 4996)
+
 singleRB singleRBeach;
 singleRG singleRGarden;
 singleRP singleRPool;
@@ -35,14 +41,13 @@ tripleRP tripleRPool;
 #define endEmail ".com"
 #define passLength 6
 
-int currentUserId;
+int currentUserId=-1;
 user currentUser;
-int searchedRooms;
-int searchedSuites;
+stack<int> chosenMenuItems;
 
 struct date {
     int day, month, year;
-}arrivateDate,departureDate;
+}arrivalDate,departureDate;
 
 void validateEmailFormat(string em,string& emError)
 {
@@ -72,31 +77,93 @@ void errorWrongNum()
     cout << "Wrong number entered. Please ty again." << endl;
 }
 
+void validateDay(date date)
+{
+    while ((date.day <= 0) || (date.day > 31))
+    {
+        cout << "You entered a wrong day number. Try again." << endl;
+        cin >> date.day;
+    }
+}
+
+void validateMonth(date date)
+{
+    while ((date.month <= 0) || (date.month > 12))
+    {
+        cout << "You entered a wrong month number. Try again." << endl;
+        cin >> date.month;
+    }
+}
+
+void validateYear(date date)
+{
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    
+    while (date.year < 1900+ltm->tm_year)
+    {
+        cout << "You entered a wrong year. "<<endl;
+        cout << "We are currently in year: " << 1900 + ltm->tm_year<<endl;
+        cout << "Try again." << endl;
+        cin >> date.year;
+    }
+}
+
 void getDates()
 {
     cout << "Specify Arrival Day: ";
-    cin >> arrivateDate.day;
+    cin >> arrivalDate.day;
+    validateDay(arrivalDate);
+
     cout << "Specify Arrival Month: ";
-    cin >> arrivateDate.month;
+    cin >> arrivalDate.month;
+    validateMonth(arrivalDate);
+
     cout << "Specify Arrival Year: ";
-    cin >> arrivateDate.year;
+    cin >> arrivalDate.year;
+    validateYear(arrivalDate);
 
     cout << "Specify Departure Day: ";
     cin >> departureDate.day;
+    validateDay(departureDate);
+
     cout << "Specify Departure Month: ";
     cin >> departureDate.month;
+    validateMonth(departureDate);
+
     cout << "Specify Departure Year: ";
     cin >> departureDate.year;
+    validateYear(departureDate);
+}
+
+int validateEnteredRoomId(vector<int> availRoomsId)
+{
+    bool isValidRoomId = false; int roomId;
+    do {
+        cout << "select the room by typing the id associated: ";
+        cin >> roomId;
+        vector<int>::iterator it = find(availRoomsId.begin(), availRoomsId.end(), roomId);
+        if (it == availRoomsId.end())
+        {
+            isValidRoomId = false;
+            cout << "Room ID entered is not valid" << endl;
+        }
+        else
+            isValidRoomId = true;
+
+    } while (!isValidRoomId);
+
+    return roomId;
 }
 
 void reserveRoom(room &r)
 {
     int roomId;
-    r.displayAvailableRooms();
-    cout << "select the room by typing the id associated: ";
-    cin >> roomId;
+    vector<int> availRoomsId;
+    r.displayAvailableRooms(availRoomsId);
+    roomId=validateEnteredRoomId(availRoomsId);
     getDates();
-    bool roomReserved = r.reserveRoom(roomId, currentUser.currentUserId, arrivateDate.day, arrivateDate.month, arrivateDate.year, departureDate.day, departureDate.month, departureDate.year);
+    bool roomReserved = r.reserveRoom(roomId, currentUser.currentUserId, arrivalDate.day, arrivalDate.month, arrivalDate.year, departureDate.day, departureDate.month, departureDate.year);
     if (roomReserved)
         cout << "Room is reserved successfully " << endl;
     else
@@ -164,12 +231,11 @@ int main()
 {
     dbManagement dbManage;
 
-    int userMainMenuNumber;
- 
+    int userMainMenuNumber, undo=0;
+
     string email, password;
     string emError = "", passError = "";
-    bool isLogSucc = false, isSignSucc = false, loggedOut = false;
-    bool noRegUse = true;
+    bool isUserRegestered = false, loggedOut = false;
 
     cout << "Hello user!" << endl;
 
@@ -181,7 +247,7 @@ int main()
         cout << "4.Restaurants & Lounges" << endl;
         cout << "5.SPA & Gym" << endl;
 
-        if (isLogSucc || isSignSucc)
+        if (isUserRegestered)
         {
             cout << "6.My Reservations" << endl;
             cout << "7.Log out" << endl;
@@ -193,7 +259,7 @@ int main()
         {
         case 1:  //LOGIN
         {
-            if (isLogSucc == false)
+            if (!isUserRegestered)
             {
                 email = "";
                 password = "";
@@ -214,51 +280,61 @@ int main()
 
                     if (isFound)
                     {
-                        isLogSucc = true;
-                        currentUser.getUserId(email,password);
-                        cout <<"\nLog in succeeded." << endl;
+                        isUserRegestered = true;
+                        currentUser.getUserId(email, password);
+                        cout << "\nLog in succeeded." << endl;
                     }
                     else
                     {
-                        isLogSucc = false;
+                        isUserRegestered = false;
                         cout << "The email and password you entered are not registered. Please try again." << endl;
                     }
                 }
                 else   //ERROR : Wrong Email Format
                 {
                     cout << emError << endl;
-                    isLogSucc = false;
+                    isUserRegestered = false;
                     cout << "Log in Failed. Please try again." << endl;
                 }
             }
             else
                 cout << "\tUser already logged in" << endl;
+
             break;
         }
 
         case 2:  //SIGNUP
         {
-            if (isLogSucc == false)
+            if (!isUserRegestered)
             {
-                string fName, sName;
-                email = "";
-                password = "";
-                emError = "";
-                passError = "";
-
-                cout << "Sign up" << endl;
-                cout << "Enter your email" << "    ";
-                cin >> email;
-
-                validateEmailFormat(email, emError);
-
-                if (emError.empty())
+                cout << "If you want to undo, type 1" << endl;
+                cin >> undo;
+                if (undo == 1)
                 {
+                    chosenMenuItems.pop();
+                }
+                else
+                {
+                    undo = 0;
+                    string fName, sName;
+                    email = "";
+                    password = "";
+                    emError = "";
+                    passError = "";
+
+                    cout << "Sign up" << endl;
+                    cout << "Enter your email" << "    ";
+                    cin >> email;
+
+                    validateEmailFormat(email, emError);
+
+                    if (emError.empty())
+                    {
                         cout << "Enter your password" << "\t";
                         cin >> password;
 
                         validatePasswordFormat(password, passError);
-                        
+
 
                         if (passError.empty())
                         {
@@ -278,15 +354,14 @@ int main()
                                 int age;
                                 cin >> age;
                                 currentUser.setAge(age);
-                                
-                                isSignSucc = true;
-                                isLogSucc = true;
+
+                                isUserRegestered = true;
 
                                 currentUser.addUser(email, password, fName, sName, age);
-           
+
                                 currentUser.getUserId(email, password);
-                               
-                               cout << "\n Hello " + currentUser.currentUserId + currentUser.getFirstName() << endl;
+
+                                cout << "\n Hello " + currentUser.currentUserId + currentUser.getFirstName() << endl;
                             }
                             else
                             {
@@ -296,58 +371,73 @@ int main()
                         else //ERROR : Password is Weak
                         {
                             cout << passError << endl;
-                            isSignSucc = false;
+                            isUserRegestered = false;
                             cout << "\nSign up failed." << endl;
                         }
                     }
-                else   //ERROR : Wrong Email Format
-                {
-                    isSignSucc = false;
-                    cout << emError << endl;
+                    else   //ERROR : Wrong Email Format
+                    {
+                        isUserRegestered = false;
+                        cout << emError << endl;
+                    }
                 }
             }
             else
                 cout << "\tUser already siggned up" << endl;
+
+
             break;
         }
 
         case 3:  //Rooms
         {
-             cout << "Rooms" << endl;
+            if (isUserRegestered)
+            {
 
-             int size, view;
-             string aDate,dDate;
+                    cout << "Rooms" << endl;
 
-             cout << "What size should it be?" << endl;
-             cout << "1:Single  2:Double  3:Triple" << endl;
-             cin >> size;
+                    int size, view;
+                    string aDate, dDate;
 
-             cout << "\nFill the required rooms specifications." << endl;
-             cout << "What view should it be on?" << endl;
-             cout << "1:Beach  2:Garden  3:Pool" << endl;
-             cin >> view;
+                    cout << "What size should it be?" << endl;
+                    cout << "1:Single  2:Double  3:Triple" << endl;
+                    cin >> size;
 
-             getAvailableRooms(size, view);
-              
-             break;      
+                    cout << "\nFill the required rooms specifications." << endl;
+                    cout << "What view should it be on?" << endl;
+                    cout << "1:Beach  2:Garden  3:Pool" << endl;
+                    cin >> view;
+
+                    getAvailableRooms(size, view);
+            }
+            else
+           {
+                cout << "Please register first to view and reserve the desired rooms" << endl;
+            }
+
+            break;
         }
 
         case 4:  //Restaurants & Lounges
         {
-
+        
             break;
         }
 
         case 5:  //SPA & Gym
         {
-
+          
             break;
         }
 
         case 6:  //My Reservations
         {
-            if (isSignSucc || isLogSucc)
+
+            if (isUserRegestered)
             {
+                
+                
+              
 
             }
             else
@@ -355,48 +445,51 @@ int main()
                 errorWrongNum();
             }
 
+           
             break;
         }
         case 7:  //Log out
         {
-            if (isSignSucc || isLogSucc)
+
+            if (isUserRegestered)
             {
-                int wantToLogOut;
+                    int wantToLogOut;
 
-                do
-                {
-                    cout << "Are you sure you want to logout?" << endl;
-                    cout << "1:Yes  or  2:No" << endl;
-                    cin >> wantToLogOut;
+                    do
+                    {
+                        cout << "Are you sure you want to logout?" << endl;
+                        cout << "1:Yes  or  2:No" << endl;
+                        cin >> wantToLogOut;
 
-                    switch (wantToLogOut)
-                    {
-                    case 1:
-                    {
-                        isLogSucc = false;
-                        isSignSucc = false;
-                        currentUser.currentUserId = -1;
-                        cout << "Log out succeeded. Please visit us soon." << endl;
-                        break;
-                    }
-                    case 2:
-                    {
-                        cout << "Log out Cancelled." << endl;
-                        break;
-                    }
+                        switch (wantToLogOut)
+                        {
+                        case 1:
+                        {
+                            isUserRegestered = false;
+                            currentUser.currentUserId = -1;
+                            cout << "Log out succeeded. Please visit us soon." << endl;
+                            break;
+                        }
+                        case 2:
+                        {
+                            cout << "Log out Cancelled." << endl;
+                            break;
+                        }
 
-                    default:
-                    {
-                        errorWrongNum();
-                        break;
-                    }
-                    }
-                } while ((wantToLogOut == 0) || (wantToLogOut > 2));
+                        default:
+                        {
+                            errorWrongNum();
+                            break;
+                        }
+                        }
+                    } while ((wantToLogOut == 0) || (wantToLogOut > 2));
+                
             }
             else
             {
                 errorWrongNum();
             }
+
             break;
         }
 

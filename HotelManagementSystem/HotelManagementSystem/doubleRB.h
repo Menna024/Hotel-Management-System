@@ -12,7 +12,7 @@ class doubleRB :
 public:
     string size = "double";
 
-    void displayAvailableRooms();
+    void displayAvailableRooms(vector<int>& roomsId);
    
 };
 

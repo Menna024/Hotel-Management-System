@@ -7,8 +7,9 @@ using namespace std;
 
 
 
-void singleRB::displayAvailableRooms()
+void singleRB::displayAvailableRooms(vector<int>& roomsId)
 {
+    
     dbManage.openDB();
 
     const char* sql = "SELECT * FROM rooms WHERE reserved !=1 AND size = 1 AND view = 'sea';";
@@ -36,6 +37,8 @@ void singleRB::displayAvailableRooms()
             int floor = sqlite3_column_int(stmt, 2);
 
             cout << "room id: " << id << ", " << "building#: " << building << ", " << "floor#: " << floor << endl;
+            roomsId.push_back(id);
+            
         }
     }
 
