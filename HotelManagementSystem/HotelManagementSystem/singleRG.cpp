@@ -5,28 +5,30 @@ using namespace std;
 #include <iostream>
 #include <string>
 #include "sqlite/sqlite3.h"
+#include "dbManagement.h"
 
 void singleRG::displayAvailableRooms(vector<int> &roomsId)
 {
-    dbManage.openDB();
+    static dbManagement* dbManage = dbManagement::getInstance();
+    dbManage->openDB();
     const char* sql = "SELECT * FROM rooms WHERE reserved !=1 AND size = 1 AND view = 'garden';";
     sqlite3_stmt* stmt;
-    dbManage.rc = sqlite3_prepare_v2(dbManage.db, sql, -1, &stmt, nullptr);
-    if (dbManage.rc != SQLITE_OK)
+    dbManage->rc = sqlite3_prepare_v2(dbManage->db, sql, -1, &stmt, nullptr);
+    if (dbManage->rc != SQLITE_OK)
     {
         cout << "Can't prepare select single garden rooms statement" << endl;
     }
     else
         cout << "Done prepare select single garden rooms statement" << endl;
 
-    if ((dbManage.rc = sqlite3_step(stmt)) != SQLITE_ROW)
+    if ((dbManage->rc = sqlite3_step(stmt)) != SQLITE_ROW)
     {
         cout << "No "<< size << " rooms with " <<view << " view available currently" << endl;
     }
     else
     {
         cout << "Garden single Rooms available are:" << endl;
-        while ((dbManage.rc = sqlite3_step(stmt)) == SQLITE_ROW)
+        while ((dbManage->rc = sqlite3_step(stmt)) == SQLITE_ROW)
         {
             int id = sqlite3_column_int(stmt, 0);
             int building = sqlite3_column_int(stmt, 1);
@@ -37,6 +39,6 @@ void singleRG::displayAvailableRooms(vector<int> &roomsId)
         }
     }
     sqlite3_finalize(stmt);
-    dbManage.closeDB();
+    dbManage->closeDB();
 
 }

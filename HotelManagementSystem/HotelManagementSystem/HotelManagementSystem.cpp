@@ -23,6 +23,7 @@ using namespace std;
 #include "tripleRP.h"
 
 #include <stack>
+#include<regex>
 
 #pragma warning(disable : 4996)
 
@@ -41,6 +42,7 @@ tripleRP tripleRPool;
 #define endEmail ".com"
 #define passLength 6
 
+
 int currentUserId=-1;
 user currentUser;
 stack<int> chosenMenuItems;
@@ -49,17 +51,21 @@ struct date {
     int day, month, year;
 }arrivalDate,departureDate;
 
-void validateEmailFormat(string em,string& emError)
+bool validateEmailFormat(string em,string& emError)
 {
     bool isComFound = em.find(endEmail) != string::npos;
     bool isAtFound = em.find("@") != string::npos;
 
-    if (isComFound && isAtFound)
+  /*  if (isComFound && isAtFound)
         emError = "";
     else
     {
         emError= "\n\n\tWarning:\nWrong email format. Email format is namee22@gmail.com. \n";
     }
+    */
+    const regex pattern("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
+    cout <<"REGEC " << regex_match(em, pattern) << endl;
+    return regex_match(em, pattern);
 }
 
 void validatePasswordFormat(string pass, string& passErorr)
@@ -227,10 +233,14 @@ void getAvailableRooms(int size, int view)
     }
 }
 
+dbManagement* getDB()
+{
+    return dbManagement::getInstance();
+}
+
+
 int main()
 {
-    dbManagement dbManage;
-
     int userMainMenuNumber, undo=0;
 
     string email, password;
@@ -272,12 +282,14 @@ int main()
                 cout << "Enter your password" << "\t";
                 cin >> password;
 
-                validateEmailFormat(email, emError);
-
+                bool val=validateEmailFormat(email, emError);
+                cout << "Email format is valid" << endl;
                 if (emError.empty())
                 {
-                    bool isFound = dbManage.validateUser(email, password);
+                    dbManagement* dbManage = getDB();
 
+                    bool isFound = dbManage->validateUser(email, password);
+                    
                     if (isFound)
                     {
                         isUserRegestered = true;
@@ -338,7 +350,9 @@ int main()
 
                         if (passError.empty())
                         {
-                            bool isADuplicateUser = dbManage.detectDuplicateEmail(email, password);
+                            dbManagement* dbManage = getDB();
+
+                            bool isADuplicateUser = dbManage->detectDuplicateEmail(email, password);
 
                             if (!isADuplicateUser)
                             {

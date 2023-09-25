@@ -5,6 +5,19 @@ using namespace std;
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
+dbManagement* dbManagement:: getInstance()
+{
+    if (ptr == NULL)
+    {
+        ptr = new dbManagement();
+        return ptr;
+    }
+    else
+    {
+        return ptr;
+    }
+}
+
 void dbManagement::openDB()
 {
     rc = sqlite3_open("hotel.db", &db);

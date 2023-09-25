@@ -1,9 +1,9 @@
 #pragma once
 #include "room.h"
 #include <string>
-using namespace std;
 #include <iostream>
 
+using namespace std;
 
 class beachRoom :public room
 {
