@@ -5,6 +5,19 @@ using namespace std;
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
+dbManagement* dbManagement:: getInstance()
+{
+    if (dbManage == NULL)
+    {
+        dbManage = new dbManagement();
+        return dbManage;
+    }
+    else
+    {
+        return dbManage;
+    }
+}
+
 void dbManagement::openDB()
 {
     rc = sqlite3_open("hotel.db", &db);
@@ -70,8 +83,6 @@ dbManagement::dbManagement()
 
 bool dbManagement::validateUser(string em, string pass)
 {
-    openDB();
-
     const char* sql = "SELECT * FROM users WHERE email = ? AND password = ?";
     sqlite3_stmt* stmt;
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
@@ -105,14 +116,13 @@ bool dbManagement::validateUser(string em, string pass)
         isUserFound = true;
     }
     sqlite3_finalize(stmt);
-    closeDB();
+
     return isUserFound;
 
 } //For login verification
 
 bool dbManagement::detectDuplicateEmail(string em,string pass)
 {
-    openDB();
     const char* sql = "SELECT * FROM users WHERE email = ?";
     sqlite3_stmt* stmt;
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
@@ -131,14 +141,6 @@ bool dbManagement::detectDuplicateEmail(string em,string pass)
     else
         cout << "Done bind email" << endl;
 
-    rc = sqlite3_bind_text(stmt, 2, pass.c_str(), -1, SQLITE_STATIC);
-    if (rc != SQLITE_OK)
-    {
-        cout << "Can't bind pass" << endl;
-    }
-    else
-        cout << "Done bind pass" << endl;
-
     bool isUserFound = false;
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
@@ -147,6 +149,5 @@ bool dbManagement::detectDuplicateEmail(string em,string pass)
     }
 
     sqlite3_finalize(stmt);
-    closeDB();
     return isUserFound;
 } //For signup verification, if user wants to make an account with already existing email

@@ -10,7 +10,6 @@ class room
 {
   public:
 
-	int id;
 	int floor;
 	int building;
 	double price;
@@ -18,7 +17,6 @@ class room
 
 	//Info about user that reserved the room
 	int userId;
-	dbManagement dbManage;
 	
 	//Arrival Date
 	int dayFrom;

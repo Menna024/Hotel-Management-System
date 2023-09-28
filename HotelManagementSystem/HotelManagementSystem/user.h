@@ -9,7 +9,6 @@ class user :public people{
 
 public:
     int currentUserId;
-    dbManagement dbManage;
     
     void addUser(string email, string password, string fName, string sName, int age);
     void getUserId(string email,string password);
