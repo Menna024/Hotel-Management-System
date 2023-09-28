@@ -7,8 +7,7 @@
 
 void tripleRG::displayAvailableRooms(vector<int>& roomsId)
 {
-    static dbManagement* dbManage = dbManagement::getInstance();
-    dbManage->openDB();
+    dbManagement* dbManage = dbManage->getInstance();
 
     const char* sql = "SELECT * FROM rooms WHERE reserved!=1 AND size = 3 AND view = 'garden';";
     sqlite3_stmt* stmt;
@@ -21,7 +20,7 @@ void tripleRG::displayAvailableRooms(vector<int>& roomsId)
         cout << "Done prepare select triple garden rooms statement" << endl;
 
 
-    if ((dbManage->rc = sqlite3_step(stmt)) != SQLITE_ROW)
+    if (dbManage->rc != SQLITE_ROW)
     {
         cout << "No " << this->size << " rooms with " << this->view << " view available currently" << endl;
     }
@@ -39,5 +38,5 @@ void tripleRG::displayAvailableRooms(vector<int>& roomsId)
         }
     }
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
+    
 }

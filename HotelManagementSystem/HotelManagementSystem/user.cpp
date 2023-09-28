@@ -4,8 +4,7 @@
 
 void user:: addUser(string email,string password,string fName,string sName,int age)
 {
-    static dbManagement* dbManage = dbManagement::getInstance();
-    dbManage->openDB();
+   dbManagement* dbManage = dbManage->getInstance();
     const char* sql = "INSERT INTO users (email,password,firstName,secondName,age,visits) VALUES (?,?,?,?,?,0);";
 
     sqlite3_stmt* stmt;
@@ -38,13 +37,12 @@ void user:: addUser(string email,string password,string fName,string sName,int a
         cout << "DONE execute statement" << endl;
 
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
 }
 
 void user:: getUserId(string em, string pass)
 {
-    static dbManagement* dbManage = dbManagement::getInstance();
-    dbManage->openDB();
+    dbManagement* dbManage = dbManage->getInstance();
+
     const char* sql = "SELECT * FROM users WHERE email = ? AND password = ?";
     sqlite3_stmt* stmt;
     dbManage->rc = sqlite3_prepare_v2(dbManage->db, sql, -1, &stmt, nullptr);
@@ -77,5 +75,5 @@ void user:: getUserId(string em, string pass)
         cout << "USER ID IS " << currentUserId << endl;
     }
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
+    
 }

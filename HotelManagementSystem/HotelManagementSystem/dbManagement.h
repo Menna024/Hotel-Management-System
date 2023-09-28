@@ -8,7 +8,7 @@ using namespace std;
 class dbManagement
 {
 private:
-	static dbManagement* ptr;
+	static dbManagement* dbManage;
 
 	dbManagement();
 

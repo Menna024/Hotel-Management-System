@@ -8,8 +8,8 @@ using namespace std;
 
 void tripleRB::displayAvailableRooms(vector<int>& roomsId)
 {
-    static dbManagement* dbManage = dbManagement::getInstance();
-    dbManage->openDB();
+    dbManagement* dbManage = dbManage->getInstance();
+
     const char* sql = "SELECT * FROM rooms WHERE reserved !=1 AND size = 3 AND view = 'sea';";
     sqlite3_stmt* stmt;
     dbManage->rc = sqlite3_prepare_v2(dbManage->db, sql, -1, &stmt, nullptr);
@@ -20,7 +20,7 @@ void tripleRB::displayAvailableRooms(vector<int>& roomsId)
     else
         cout << "Done prepare select triple beach rooms statement" << endl;
 
-    if ((dbManage->rc = sqlite3_step(stmt)) != SQLITE_ROW)
+    if (dbManage->rc != SQLITE_ROW)
     {
         cout << "No " << this->size << " rooms with " << this->view << " view available currently" << endl;
     }
@@ -38,5 +38,5 @@ void tripleRB::displayAvailableRooms(vector<int>& roomsId)
         }
     }
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
+    
 }

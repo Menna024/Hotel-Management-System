@@ -4,7 +4,6 @@ using namespace std;
 #include <string>
 #include <ctime>
 
-
 #include "sqlite/sqlite3.h"
 #include "dbManagement.h"
 
@@ -24,6 +23,7 @@ using namespace std;
 
 #include <stack>
 #include<regex>
+#include <windows.h>
 
 #pragma warning(disable : 4996)
 
@@ -39,47 +39,72 @@ tripleRB tripleRBeach;
 tripleRG tripleRGarden;
 tripleRP tripleRPool;
 
-#define endEmail ".com"
-#define passLength 6
-
-
 int currentUserId=-1;
 user currentUser;
 stack<int> chosenMenuItems;
+
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 struct date {
     int day, month, year;
 }arrivalDate,departureDate;
 
-bool validateEmailFormat(string em,string& emError)
+void warningWrongEmailFormat()
 {
-    bool isComFound = em.find(endEmail) != string::npos;
-    bool isAtFound = em.find("@") != string::npos;
+    cout << "Wrong email format\nThe email must: " << endl;
+    cout << "\t- contain @ character and . character." << endl;
+    cout << "\t- . character should be present after the @ character." << endl;
+    cout << "\t- not end with . character." << endl;
+}
 
-  /*  if (isComFound && isAtFound)
-        emError = "";
-    else
-    {
-        emError= "\n\n\tWarning:\nWrong email format. Email format is namee22@gmail.com. \n";
-    }
-    */
+void warningWrongPasswordFormat()
+{
+    cout << "Wrong password format\nThe password must: " << endl;
+    cout << "\t- have at least one lowercase letter." << endl;
+    cout << "\t- contain at least one uppercase letter." << endl;
+    cout << "\t- contain at least one number." << endl;
+    cout << "\t- contain at least one special character." << endl;
+    cout << "\t- not contain any whitespace." << endl;
+    cout << "\t- be at least 8 characters long." << endl;
+
+}
+
+bool validateEmailFormat(string em)
+{
     const regex pattern("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
-    cout <<"REGEC " << regex_match(em, pattern) << endl;
+    /*
+        The \w matches any character in any case any number of times.
+        Then the \. | _ matches if a dot or underscore is present 0 or 1 times.
+        Then \w again match n characters.
+        Then @ matches the @ in the email.
+        Then we again check for n charactersand a ‘.’and a word after it, which must be present at least one or more times.
+    */
+
     return regex_match(em, pattern);
 }
 
-void validatePasswordFormat(string pass, string& passErorr)
+bool validatePasswordFormat(string pass)
 {
-    if (pass.length() > passLength)
-        passErorr = "";
-    else
-    {
-        passErorr= "\n\tWarning:\nWeak password. Passord length should be more than 6 digits.";
-    }
+    const regex pattern("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=])(?=\\S+$).{8,}");
+    /*
+       (?=.*[a-z]): The password must have at least one lowercase letter.
+       
+       (?=.*[A-Z]): The password must contain at least one uppercase letter.
+       
+       (?=.*[0-9]): The password must contain at least one number.
+       
+       (?=.*[@#$%^&+=]): The password must contain at least one special character.
+       
+       (?=\\S+$): The password must not contain any whitespace.
+       
+       .{8,}: The password must be at least 8 characters long.
+    */
+    return regex_match(pass, pattern);
 }
 
 void errorWrongNum()
 {
+    SetConsoleTextAttribute(hConsole, 12);
     cout << "Wrong number entered. Please ty again." << endl;
 }
 
@@ -87,6 +112,7 @@ void validateDay(date date)
 {
     while ((date.day <= 0) || (date.day > 31))
     {
+        SetConsoleTextAttribute(hConsole, 12);
         cout << "You entered a wrong day number. Try again." << endl;
         cin >> date.day;
     }
@@ -96,6 +122,7 @@ void validateMonth(date date)
 {
     while ((date.month <= 0) || (date.month > 12))
     {
+        SetConsoleTextAttribute(hConsole, 12);
         cout << "You entered a wrong month number. Try again." << endl;
         cin >> date.month;
     }
@@ -108,6 +135,7 @@ void validateYear(date date)
     
     while (date.year < 1900+ltm->tm_year)
     {
+        SetConsoleTextAttribute(hConsole, 12);
         cout << "You entered a wrong year. "<<endl;
         cout << "We are currently in year: " << 1900 + ltm->tm_year<<endl;
         cout << "Try again." << endl;
@@ -151,6 +179,7 @@ int validateEnteredRoomId(vector<int> availRoomsId)
         vector<int>::iterator it = find(availRoomsId.begin(), availRoomsId.end(), roomId);
         if (it == availRoomsId.end())
         {
+            SetConsoleTextAttribute(hConsole, 12);
             isValidRoomId = false;
             cout << "Room ID entered is not valid" << endl;
         }
@@ -162,18 +191,29 @@ int validateEnteredRoomId(vector<int> availRoomsId)
     return roomId;
 }
 
-void reserveRoom(room &r)
+void reserveRoom(room& r)
 {
     int roomId;
     vector<int> availRoomsId;
+
     r.displayAvailableRooms(availRoomsId);
-    roomId=validateEnteredRoomId(availRoomsId);
-    getDates();
-    bool roomReserved = r.reserveRoom(roomId, currentUser.currentUserId, arrivalDate.day, arrivalDate.month, arrivalDate.year, departureDate.day, departureDate.month, departureDate.year);
-    if (roomReserved)
-        cout << "Room is reserved successfully " << endl;
-    else
-        cout << "Reservation Failed. " << endl;
+
+    if (!availRoomsId.empty())
+    {
+        roomId = validateEnteredRoomId(availRoomsId);
+        getDates();
+        bool roomReserved = r.reserveRoom(roomId, currentUser.currentUserId, arrivalDate.day, arrivalDate.month, arrivalDate.year, departureDate.day, departureDate.month, departureDate.year);
+        if (roomReserved)
+        {
+            SetConsoleTextAttribute(hConsole, 10);
+            cout << "Room is reserved successfully " << endl;
+        }
+        else
+        {
+            SetConsoleTextAttribute(hConsole, 12);
+            cout << "Reservation Failed. " << endl;
+        }
+    }
 }
 
 void getAvailableRooms(int size, int view)
@@ -233,23 +273,21 @@ void getAvailableRooms(int size, int view)
     }
 }
 
-dbManagement* getDB()
-{
-    return dbManagement::getInstance();
-}
-
+dbManagement* dbManagement::dbManage = 0;
 
 int main()
 {
+    dbManagement* db = db->getInstance();
     int userMainMenuNumber, undo=0;
 
     string email, password;
-    string emError = "", passError = "";
     bool isUserRegestered = false, loggedOut = false;
 
+    SetConsoleTextAttribute(hConsole,11);
     cout << "Hello user!" << endl;
 
     do {
+        SetConsoleTextAttribute(hConsole,15); //coloring text on console 
         cout << "\nDo you want to : " << endl;
         cout << "1.Login" << endl;
         cout << "2.Signup" << endl;
@@ -273,8 +311,6 @@ int main()
             {
                 email = "";
                 password = "";
-                emError = "";
-                passError = "";
 
                 cout << "\nLog in" << endl;
                 cout << "Enter your email" << "    ";
@@ -282,13 +318,11 @@ int main()
                 cout << "Enter your password" << "\t";
                 cin >> password;
 
-                bool val=validateEmailFormat(email, emError);
-                cout << "Email format is valid" << endl;
-                if (emError.empty())
+                bool val=validateEmailFormat(email);
+                
+                if (val)
                 {
-                    dbManagement* dbManage = getDB();
-
-                    bool isFound = dbManage->validateUser(email, password);
+                    bool isFound = db->validateUser(email, password);
                     
                     if (isFound)
                     {
@@ -299,19 +333,23 @@ int main()
                     else
                     {
                         isUserRegestered = false;
+                        SetConsoleTextAttribute(hConsole, 12);
                         cout << "The email and password you entered are not registered. Please try again." << endl;
                     }
                 }
                 else   //ERROR : Wrong Email Format
                 {
-                    cout << emError << endl;
+                    warningWrongEmailFormat();
                     isUserRegestered = false;
+                    SetConsoleTextAttribute(hConsole, 12);
                     cout << "Log in Failed. Please try again." << endl;
                 }
             }
             else
+            {
+                SetConsoleTextAttribute(hConsole, 4);
                 cout << "\tUser already logged in" << endl;
-
+            }
             break;
         }
 
@@ -331,28 +369,24 @@ int main()
                     string fName, sName;
                     email = "";
                     password = "";
-                    emError = "";
-                    passError = "";
 
                     cout << "Sign up" << endl;
                     cout << "Enter your email" << "    ";
                     cin >> email;
 
-                    validateEmailFormat(email, emError);
-
-                    if (emError.empty())
+                    bool val = validateEmailFormat(email);
+                  
+                    if (val)
                     {
                         cout << "Enter your password" << "\t";
                         cin >> password;
 
-                        validatePasswordFormat(password, passError);
+                        val=validatePasswordFormat(password);
 
 
-                        if (passError.empty())
+                        if (val)
                         {
-                            dbManagement* dbManage = getDB();
-
-                            bool isADuplicateUser = dbManage->detectDuplicateEmail(email, password);
+                            bool isADuplicateUser = db->detectDuplicateEmail(email, password);
 
                             if (!isADuplicateUser)
                             {
@@ -374,31 +408,39 @@ int main()
                                 currentUser.addUser(email, password, fName, sName, age);
 
                                 currentUser.getUserId(email, password);
-
+                                SetConsoleTextAttribute(hConsole, 10);
+                                cout << "\nSign up succeeded" << endl;
                                 cout << "\n Hello " + currentUser.currentUserId + currentUser.getFirstName() << endl;
                             }
                             else
                             {
+                                SetConsoleTextAttribute(hConsole, 12);
                                 cout << "Duplicate user " << endl;
                             }
                         }
                         else //ERROR : Password is Weak
                         {
-                            cout << passError << endl;
+                            warningWrongPasswordFormat();
                             isUserRegestered = false;
+                            SetConsoleTextAttribute(hConsole, 12);
                             cout << "\nSign up failed." << endl;
                         }
                     }
                     else   //ERROR : Wrong Email Format
                     {
+                        warningWrongEmailFormat();
+
                         isUserRegestered = false;
-                        cout << emError << endl;
+                        SetConsoleTextAttribute(hConsole, 12);
+                        cout << "\nSign up failed." << endl;
                     }
                 }
             }
             else
+            {
+                SetConsoleTextAttribute(hConsole, 4);
                 cout << "\tUser already siggned up" << endl;
-
+            }
 
             break;
         }
@@ -407,7 +449,7 @@ int main()
         {
             if (isUserRegestered)
             {
-
+                SetConsoleTextAttribute(hConsole, 9);
                     cout << "Rooms" << endl;
 
                     int size, view;
@@ -425,7 +467,8 @@ int main()
                     getAvailableRooms(size, view);
             }
             else
-           {
+            {
+                SetConsoleTextAttribute(hConsole, 4);
                 cout << "Please register first to view and reserve the desired rooms" << endl;
             }
 
@@ -514,4 +557,7 @@ int main()
         }
         }
     } while (true);
+
+
+    db->closeDB();
 }

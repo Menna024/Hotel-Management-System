@@ -31,7 +31,6 @@ bool room::reserveRoom(int roomId, int userId, int day, int month, int year, int
     {
         cout << "Can't execute statement " << sqlite3_errmsg(dbManage->db) << endl;
         sqlite3_finalize(stmt);
-        dbManage->closeDB();
         return false;
     }
     else
@@ -41,7 +40,6 @@ bool room::reserveRoom(int roomId, int userId, int day, int month, int year, int
         if (isDateReserved)
         {
             sqlite3_finalize(stmt);
-            dbManage->closeDB();
 
             incrementUserVisits(userId);
             return true;
@@ -49,7 +47,6 @@ bool room::reserveRoom(int roomId, int userId, int day, int month, int year, int
         else
         {
             sqlite3_finalize(stmt);
-            dbManage->closeDB();
             return false;
         }
     }
@@ -86,7 +83,6 @@ bool room::reserveRoomDate(int roomId, int day, int month, int year, int day2, i
     {
         cout << "Can't execute statement " << sqlite3_errmsg(dbManage->db) << endl;
         sqlite3_finalize(stmt);
-        dbManage->closeDB();
         return false;
     }
     else
@@ -94,7 +90,6 @@ bool room::reserveRoomDate(int roomId, int day, int month, int year, int day2, i
         cout << "DONE execute statement" << endl;
 
         sqlite3_finalize(stmt);
-        dbManage->closeDB();
         return true;
     }
 }
@@ -121,11 +116,9 @@ int room::getUserVisits(int userID)
         visits = sqlite3_column_int(stmt, 0);
         cout << "USER visits is " << visits << endl;
         sqlite3_finalize(stmt);
-    dbManage->closeDB();
         return visits;
     }
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
     return -1;
 }
 
@@ -163,7 +156,6 @@ void room::incrementUserVisits( int userID)
     }
 
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
 
     getUserVisits(userID);
 }
@@ -217,5 +209,4 @@ void room::clearRoom(int roomId)
 	userId = -1;
 
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
 }

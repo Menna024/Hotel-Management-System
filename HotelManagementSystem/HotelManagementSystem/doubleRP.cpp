@@ -9,8 +9,8 @@ using namespace std;
 
 void doubleRP::displayAvailableRooms(vector<int>& roomsId)
 {
-    static dbManagement* dbManage = dbManagement::getInstance();
-    dbManage->openDB();
+    dbManagement* dbManage = dbManage->getInstance();
+
     const char* sql = "SELECT * FROM rooms WHERE reserved !=1 AND size = 2 AND view = 'pool';";
     sqlite3_stmt* stmt;
     dbManage->rc = sqlite3_prepare_v2(dbManage->db, sql, -1, &stmt, nullptr);
@@ -21,7 +21,7 @@ void doubleRP::displayAvailableRooms(vector<int>& roomsId)
     else
         cout << "Done prepare select double pool rooms statement" << endl;
 
-    if ((dbManage->rc = sqlite3_step(stmt)) != SQLITE_ROW)
+    if (dbManage->rc != SQLITE_ROW)
     {
         cout << "No " << this->size << " rooms with " << this->view << " view available currently" << endl;
     }
@@ -39,6 +39,4 @@ void doubleRP::displayAvailableRooms(vector<int>& roomsId)
         }
     }
     sqlite3_finalize(stmt);
-    dbManage->closeDB();
-
 }

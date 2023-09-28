@@ -1,19 +1,2 @@
 ﻿  HotelManagementSystem.cpp
-  beachRoom.cpp
-  dbManagement.cpp
-  doubleRB.cpp
-  doubleRG.cpp
-  doubleRP.cpp
-  gardenRoom.cpp
-  poolRoom.cpp
-  room.cpp
-  singleRB.cpp
-  singleRG.cpp
-  singleRP.cpp
-  tripleRB.cpp
-  tripleRG.cpp
-  tripleRP.cpp
-  user.cpp
-  Generating Code...
-dbManagement.obj : error LNK2001: unresolved external symbol "private: static class dbManagement * dbManagement::ptr" (?ptr@dbManagement@@0PAV1@A)
-D:\HotelManagementSystem\Hotel-Management-System\HotelManagementSystem\Debug\HotelManagementSystem.exe : fatal error LNK1120: 1 unresolved externals
+  HotelManagementSystem.vcxproj -> D:\HotelManagementSystem\Hotel-Management-System\HotelManagementSystem\Debug\HotelManagementSystem.exe
